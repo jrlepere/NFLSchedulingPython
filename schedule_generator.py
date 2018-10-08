@@ -29,11 +29,11 @@ def genetic_algorithm():
 	while True:
 	
 		# minimum error
-		m = min([i.get_error() for i in population])
+		m = population[0].get_error()
 		if m == 0:
 			break
 		else:
-			print('%d - %d'%(m, max([i.get_error() for i in population])))
+			print('%d - %d'%(m, population[-1].get_error()))
 			
 		# new population, elitist
 		new_population = [population[0].copy()]

@@ -7,6 +7,7 @@ class NFLSchedule:
 
 	# number of games per week
 	num_games_per_week = [16, 16, 16, 15, 15, 15, 14, 14, 13, 14, 13, 15, 16, 16, 16, 16, 16]
+	thanksgiving_gameslots = [161,162,163]
 	NUM_WEEKS = len(num_games_per_week)
 
 	def __init__(self, teams, matchup_team):
@@ -21,6 +22,9 @@ class NFLSchedule:
 		# store the teams and matchups
 		self.teams = teams
 		self.matchup_team = matchup_team
+		
+		# team index of the super bowl winning team
+		self.champ_index = teams['Eagles']
 		
 		# number of matchups, gameslots and teams
 		self.NUM_GAMESLOTS = len(self.matchup_team)
@@ -196,8 +200,22 @@ class NFLSchedule:
 		
 		# only calculate it once, when it is asked for
 		if self._error == -1:
+		
+			# set the home/away team to gameslot matrix
 			self._set_home_away_matrix()
+			
+			# one game per team per week
 			self._error = self._one_game_per_week()
+			
+			# Eagles first game of season at home
+			self._error += self._specific_home_game(team_index=self.teams['Eagles'], gameslot=0)
+			
+			# Lions thanksgiving
+			self._error += self._specific_home_game(team_index=self.teams['Lions'], gameslot=NFLSchedule.thanksgiving_gameslots[0])
+			
+			# Cowboys thanksgiving
+			self._error += self._specific_home_game(team_index=self.teams['Cowboys'], gameslot=NFLSchedule.thanksgiving_gameslots[1])
+			
 		return self._error
 	
 	# week gameslot matrix
@@ -218,6 +236,15 @@ class NFLSchedule:
 		"""
 		
 		return np.sum(np.where(np.matmul(self.hometeam_gameslot, NFLSchedule.gameslot_week) + np.matmul(self.awayteam_gameslot, NFLSchedule.gameslot_week) != 1, 1, 0)) - self.NUM_TEAMS
-			
-			
+	
+	
+	def _specific_home_game(self, team_index, gameslot):
+		"""
+		Enforce that the first game of the year is at home for the Super Bowl champs.
+		
+		Return:
+		  1 if the super bowl champ is not starting the season at home.
+		"""
+		
+		return 1 if self.hometeam_gameslot[team_index][gameslot] != 1 else 0
 	
