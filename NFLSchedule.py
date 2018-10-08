@@ -5,6 +5,10 @@ class NFLSchedule:
 	"""
 	"""
 
+	# number of games per week
+	num_games_per_week = [16, 16, 16, 15, 15, 15, 14, 14, 13, 14, 13, 15, 16, 16, 16, 16, 16]
+	NUM_WEEKS = len(num_games_per_week)
+
 	def __init__(self, teams, matchup_team):
 		"""
 		Initializes an NFLSchedule object for storing matchups and associate game slots.
@@ -143,6 +147,7 @@ class NFLSchedule:
 		if iterations > 0:
 			# need to recalculate error if shuffled at least once
 			self._error = -1
+		
 	
 	def swap(self, i, j):
 		"""
@@ -158,7 +163,8 @@ class NFLSchedule:
 		
 		# need to recalculate error
 		self._error = -1
-			
+	
+	
 	def copy(self):
 		"""
 		Creates a copy of this schedule.
@@ -194,10 +200,15 @@ class NFLSchedule:
 			self._error = self._one_game_per_week()
 		return self._error
 	
-	
-	M = np.zeros((256, 16))
-	for i in range(16):
-		M[16*i:16*(i+1),i] = np.ones(16)
+	# week gameslot matrix
+	week_gameslot = []
+	count = 0
+	for n in num_games_per_week:
+		week_games = [0 for _ in range(256)]
+		week_games[count:count+n] = [1 for _ in range(n)]
+		count += n
+		week_gameslot.append(week_games)
+	gameslot_week = np.array(week_gameslot, dtype=np.uint32).T
 	def _one_game_per_week(self):
 		"""
 		Gets the number of violations of the one game per team per week constraint.
@@ -206,11 +217,7 @@ class NFLSchedule:
 		  The number of violations of the one game per team per week constraint.
 		"""
 		
-		# expected 430
-		
-		# matrix multiplication constant
-		
-		return np.sum(np.where(np.matmul(self.hometeam_gameslot, NFLSchedule.M) + np.matmul(self.awayteam_gameslot, NFLSchedule.M) != 1, 1, 0))
+		return np.sum(np.where(np.matmul(self.hometeam_gameslot, NFLSchedule.gameslot_week) + np.matmul(self.awayteam_gameslot, NFLSchedule.gameslot_week) != 1, 1, 0)) - self.NUM_TEAMS
 			
 			
 	
