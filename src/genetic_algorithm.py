@@ -3,7 +3,7 @@ from random import random, randint, uniform, shuffle
 from src.NFLSchedule import NFLSchedule
 from math import sqrt
 
-def genetic_algorithm(base, pop_size=128, elitist=16):
+def genetic_algorithm(base, pop_size=128, num_elitist=16):
 	
 	# gets the reproduction probability for the current population
 	def get_reproduction_probability(population):
@@ -46,10 +46,20 @@ def genetic_algorithm(base, pop_size=128, elitist=16):
 		# new population, elitist
 		new_population = []
 		for individual in population:
-			if individual.get_error() == m:
+			individual_error = individual.get_error()
+			if individual_error <= 30:
+				if individual.try_swap_all():
+					print("GOOOOOOOOOOOOOOOOOOOD")
+					new_population.append(individual)
+					if len(new_population) == num_elitist:
+							break
+				else:
+					individual.shuffle(5)
+					print("BAAAAAAAAAAAAAAAAAAAD")
+			elif individual_error == m:
 				if individual not in new_population:
 					new_population.append(individual)
-					if len(new_population) == elitist:
+					if len(new_population) == num_elitist:
 						break
 			else:
 				break
@@ -62,13 +72,7 @@ def genetic_algorithm(base, pop_size=128, elitist=16):
 			child = population[get_parent_index(reproduction_probability)].copy()
 			
 			# mutation
-			r = random()
-			if r < 0.9:
-				child.shuffle(1)
-			elif r < 0.99:
-				child.shuffle(2)
-			else:
-				child.shuffle(3)
+			child.shuffle(1)
 				
 			# populate
 			new_population.append(child)

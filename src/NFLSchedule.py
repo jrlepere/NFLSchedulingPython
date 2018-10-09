@@ -39,6 +39,15 @@ class NFLSchedule:
 	
 	
 	def __eq__(self, other):
+		"""
+		Test if this NFLSchedule is equal to another NFLSchedule.
+
+		Args:
+		  other: the other NFLSchedule
+
+		Return:
+		  True if this schedule is equal to the other schedule, false othewise.
+		"""
 		if isinstance(other, NFLSchedule):
 			return (self.matchup_gameslot == other.matchup_gameslot).all()
 		else:
@@ -100,7 +109,6 @@ class NFLSchedule:
 		# split the parent matchup gameslot matrix
 		child.matchup_gameslot[:i] = np.copy(s1.matchup_gameslot)[:i]
 		child.matchup_gameslot[i:] = np.copy(s2.matchup_gameslot)[i:]
-
 		
 		# maintain one game per game slot
 		unique_values, unique_indexes = np.unique(child.matchup_gameslot, return_index=True)
@@ -193,7 +201,30 @@ class NFLSchedule:
 		
 		# return the copy
 		return copy
+	
+
+	def try_swap_all(self):
+		"""
+		Try swapping all of the matchups to find an improvement to the current schedule.
+
+		Returns:
+		  True if there was an improvement to the schedule made, False if no improvement is possible.
+		"""
 		
+		# current error
+		current_error = self.get_error()
+
+		# try swapping all
+		for i in range(self.NUM_MATCHUPS):
+			for j in range(i+1, self.NUM_MATCHUPS):
+				self.swap(i, j)
+				if self.get_error() < current_error:
+					return True
+				self.swap(j, i)
+
+		# no swapping lead to improvement
+		return False
+
 	
 	def get_error(self):
 		"""
