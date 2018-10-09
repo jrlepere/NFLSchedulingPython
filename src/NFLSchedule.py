@@ -23,9 +23,6 @@ class NFLSchedule:
 		self.teams = teams
 		self.matchup_team = matchup_team
 		
-		# team index of the super bowl winning team
-		self.champ_index = teams['Eagles']
-		
 		# number of matchups, gameslots and teams
 		self.NUM_GAMESLOTS = len(self.matchup_team)
 		self.NUM_MATCHUPS = len(self.matchup_team)
@@ -43,7 +40,7 @@ class NFLSchedule:
 	
 	def __eq__(self, other):
 		if isinstance(other, NFLSchedule):
-			return self.matchup_gameslot == other.matchup_gameslot
+			return (self.matchup_gameslot == other.matchup_gameslot).all()
 		else:
 			return False
 			
@@ -215,13 +212,13 @@ class NFLSchedule:
 			self._error = self._one_game_per_week()
 			
 			# Eagles first game of season at home
-			self._error += self._specific_home_game(team_index=self.teams['Eagles'], gameslot=0)
+			self._error += self._specific_home_game(team_index=self.teams['Philadelphia Eagles'], gameslot=0)
 			
 			# Lions thanksgiving
-			self._error += self._specific_home_game(team_index=self.teams['Lions'], gameslot=NFLSchedule.thanksgiving_gameslots[0])
+			self._error += self._specific_home_game(team_index=self.teams['Detroit Lions'], gameslot=NFLSchedule.thanksgiving_gameslots[0])
 			
 			# Cowboys thanksgiving
-			self._error += self._specific_home_game(team_index=self.teams['Cowboys'], gameslot=NFLSchedule.thanksgiving_gameslots[1])
+			self._error += self._specific_home_game(team_index=self.teams['Dallas Cowboys'], gameslot=NFLSchedule.thanksgiving_gameslots[1])
 			
 		return self._error
 	
