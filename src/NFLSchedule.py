@@ -100,6 +100,7 @@ class NFLSchedule:
 		# split the parent matchup gameslot matrix
 		child.matchup_gameslot[:i] = np.copy(s1.matchup_gameslot)[:i]
 		child.matchup_gameslot[i:] = np.copy(s2.matchup_gameslot)[i:]
+
 		
 		# maintain one game per game slot
 		unique_values, unique_indexes = np.unique(child.matchup_gameslot, return_index=True)

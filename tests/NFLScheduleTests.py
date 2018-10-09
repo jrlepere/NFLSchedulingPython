@@ -47,3 +47,4 @@ def test_swap():
 	# test swap not equal
 	s1.swap(10,20)
 	assert s1 != s2
+
