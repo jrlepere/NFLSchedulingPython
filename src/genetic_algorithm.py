@@ -1,8 +1,8 @@
 import numpy as np
 from random import random, randint
-from NFLSchedule import NFLSchedule
+from src.NFLSchedule import NFLSchedule
 
-def genetic_algorithm():
+def genetic_algorithm(base):
 
 	# population size
 	pop_size = 128
@@ -16,9 +16,6 @@ def genetic_algorithm():
 			if x < 0:
 				return i
 		return 0
-
-	# base schedule so only one read
-	base = NFLSchedule.init('nfl-matchups_2018.csv')
 	
 	# initial random population
 	population = [base.copy() for _ in range(pop_size)]
@@ -58,8 +55,6 @@ def genetic_algorithm():
 		population = new_population
 		population = sorted(population, key=lambda x: x.get_error())
 				
-		
-if __name__ == '__main__':
-	genetic_algorithm()
+
 
 		

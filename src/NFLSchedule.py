@@ -39,7 +39,14 @@ class NFLSchedule:
 		#  the error should only be calculated when the user calls get_error(),
 		#  assuming the user has set the schedule and is ready for the error.
 		self._error = -1
-		
+	
+	
+	def __eq__(self, other):
+		if isinstance(other, NFLSchedule):
+			return self.matchup_gameslot == other.matchup_gameslot
+		else:
+			return False
+			
 	
 	@classmethod
 	def init(cls, matchups_file):
