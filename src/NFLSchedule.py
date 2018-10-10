@@ -31,11 +31,11 @@ class NFLSchedule:
 		# matchup x gameslot array
 		self.matchup_gameslot = np.arange(self.NUM_MATCHUPS, dtype=np.uint32)
 		
-		# error, initially set to -1 and only calculate when it is called for
+		# score, initially set to None and only calculate when it is called for
 		#  this is because there can, most likely, be shuffling. therefore,
-		#  the error should only be calculated when the user calls get_error(),
-		#  assuming the user has set the schedule and is ready for the error.
-		self._error = -1
+		#  the score should only be calculated when the user calls get_score(),
+		#  assuming the user has set the schedule and is ready for the score.
+		self._score = None
 	
 	
 	def __eq__(self, other):
@@ -52,7 +52,17 @@ class NFLSchedule:
 			return (self.matchup_gameslot == other.matchup_gameslot).all()
 		else:
 			return False
-			
+	
+	
+	def get_matchups(self):
+		"""
+		Gets the matchups.
+		
+		Return:
+		  The matchups.
+		"""
+		return np.copy(self.matchup_gameslot)
+	
 	
 	@classmethod
 	def init(cls, matchups_file):
@@ -162,8 +172,8 @@ class NFLSchedule:
 			self.matchup_gameslot[[m1,m2]] = self.matchup_gameslot[[m2,m1]]
 		
 		if iterations > 0:
-			# need to recalculate error if shuffled at least once
-			self._error = -1
+			# need to recalculate score if shuffled at least once
+			self._score = None
 		
 	
 	def swap(self, i, j):
@@ -178,8 +188,8 @@ class NFLSchedule:
 		# swap the matchups
 		self.matchup_gameslot[[i,j]] = self.matchup_gameslot[[j,i]]
 		
-		# need to recalculate error
-		self._error = -1
+		# need to recalculate score
+		self._score = None
 	
 	
 	def copy(self):
@@ -197,7 +207,7 @@ class NFLSchedule:
 		copy.matchup_gameslot = np.copy(self.matchup_gameslot)
 		
 		# copy over the error, incase it was already calculated
-		copy._error = self._error
+		copy._score = self._score
 		
 		# return the copy
 		return copy
@@ -211,48 +221,88 @@ class NFLSchedule:
 		  True if there was an improvement to the schedule made, False if no improvement is possible.
 		"""
 		
-		# current error
-		current_error = self.get_error()
+		# current score
+		current_score = self.get_score()
 
 		# try swapping all
 		for i in range(self.NUM_MATCHUPS):
 			for j in range(i+1, self.NUM_MATCHUPS):
 				self.swap(i, j)
-				if self.get_error() < current_error:
+				if self.get_score() > current_score:
 					return True
-				self.swap(j, i)
+				self.swap(i, j)
 
 		# no swapping lead to improvement
 		return False
 
 	
-	def get_error(self):
+	def get_score(self):
 		"""
-		Calculates the error for this matchup assignment.
+		Calculates the score for this matchup assignment. If the score is less than 0,
+		  the constraints are not yet satisfied. Once the score is greater than 0, the
+		  schedule is playable based on the constraints and the score is a heuristic
+		  representing the quality of the schedule.
 		
 		Return:
-		  The error for this assignment.
+		  The score for this assignment.
 		"""
 		
 		# only calculate it once, when it is asked for
-		if self._error == -1:
+		if self._score == None:
 		
 			# set the home/away team to gameslot matrix
 			self._set_home_away_matrix()
 			
-			# one game per team per week
-			self._error = self._one_game_per_week()
+			# number of constraints violated
+			error = self._get_error()
 			
-			# Eagles first game of season at home
-			self._error += self._specific_home_game(team_index=self.teams['Philadelphia Eagles'], gameslot=0)
+			# if number of constraints violated is 0, compute the heuristic, else return -error
+			if error == 0:
+				self._score = randint(1,1000) #TODO
+			else:
+				self._score = -error
 			
-			# Lions thanksgiving
-			self._error += self._specific_home_game(team_index=self.teams['Detroit Lions'], gameslot=NFLSchedule.thanksgiving_gameslots[0])
 			
-			# Cowboys thanksgiving
-			self._error += self._specific_home_game(team_index=self.teams['Dallas Cowboys'], gameslot=NFLSchedule.thanksgiving_gameslots[1])
-			
-		return self._error
+		return self._score
+	
+	
+	def constraints_satisfied(self):
+		"""
+		Return whether or not the constraints are satisfied.
+		
+		Return:
+		  True if the constraints are satisfied, false otherwise.
+		"""
+		
+		# get the score / compute if needed
+		score = self.get_score()
+		
+		# if score is >= 0, all constraints are satisfied
+		return score >= 0
+	
+	
+	def _get_error(self):
+		"""
+		Gets the number of errors, or violated constraints, for the schedule.
+		
+		Return:
+		  The number of violated constraints.
+		"""
+		# one game per team per week
+		error = self._one_game_per_week()
+		
+		# Eagles first game of season at home
+		error += self._specific_home_game(team_index=self.teams['Philadelphia Eagles'], gameslot=0)
+		
+		# Lions thanksgiving
+		error += self._specific_home_game(team_index=self.teams['Detroit Lions'], gameslot=NFLSchedule.thanksgiving_gameslots[0])
+		
+		# Cowboys thanksgiving
+		error += self._specific_home_game(team_index=self.teams['Dallas Cowboys'], gameslot=NFLSchedule.thanksgiving_gameslots[1])
+		
+		# return constraints violated count
+		return error
+		
 	
 	# week gameslot matrix
 	week_gameslot = []

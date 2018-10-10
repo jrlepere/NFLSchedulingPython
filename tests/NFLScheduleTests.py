@@ -26,8 +26,8 @@ def test_NFLScheduleAcceptable():
 	# init actual schedule
 	s = NFLSchedule.init('./resources/nfl-matchups_2018.csv')
 	
-	# test error is 0
-	assert s.get_error() == 0
+	# test constraints satisfied
+	assert s.constraints_satisfied()
 
 
 def test_swap():
