@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>
+		HOME PAGE
+		</title>
+	</head>
+	<body>
+		<h1>NFL Schedules</h1>
+		<p>Information</p>
+		<p>{{num_schedules}}</p>
+		{% for schedule in schedules%}
+			<li>{{schedule}}</li>
+		{% endfor %}
+	</body>
+
+</html>
