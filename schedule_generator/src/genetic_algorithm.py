@@ -3,7 +3,7 @@ from random import random, randint, uniform, shuffle
 from src.NFLSchedule import NFLSchedule
 from math import sqrt
 
-def genetic_algorithm(base, pop_size=128, num_elitist=16, num_results=100):
+def genetic_algorithm(base, pop_size=128, num_elitist=16, num_results=1000, init_shuffles=256):
 	"""
 	Try and find num_results unique playable schedules using the genetic algorithm.
 	
@@ -12,6 +12,7 @@ def genetic_algorithm(base, pop_size=128, num_elitist=16, num_results=100):
 	  pop_size: the size of the population
 	  num_elitist: the number of unique elitist to retain for each generation
 	  num_results: the number of unique schedules to return
+	  init_shuffles: the number of shuffles to perform on each copy of the base schedule for the initial population.
 	
 	Return:
 	  A list of playable schedules.
@@ -55,7 +56,7 @@ def genetic_algorithm(base, pop_size=128, num_elitist=16, num_results=100):
 	# initial random population
 	population = [base.copy() for _ in range(pop_size)]
 	for individual in population:
-		individual.shuffle(256)
+		individual.shuffle(init_shuffles)
 	population = sorted(population, key=lambda x: x.get_score(), reverse=True)
 	reproduction_probability = get_reproduction_probability(population)
 	

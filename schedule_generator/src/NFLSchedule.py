@@ -62,7 +62,22 @@ class NFLSchedule:
 		  The matchups.
 		"""
 		return np.copy(self.matchup_gameslot)
+		
 	
+	def set_matchups(self, matchups):
+		"""
+		Set the matchups for this schedule.
+		
+		Args:
+		  matchups: a list of matchups, where index i represents the gameslot for matchup i.
+		"""
+		
+		# set matchup array
+		self.matchup_gameslot = np.array(matchups, dtype=np.uint32)
+		
+		# reset the score
+		self._score = None
+		
 	
 	@classmethod
 	def init(cls, matchups_file):

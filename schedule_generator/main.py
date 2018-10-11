@@ -26,7 +26,7 @@ if __name__ == '__main__':
 	base = NFLSchedule.init('./resources/nfl-matchups_2018.csv')
 	
 	# get schedules
-	schedules = genetic_algorithm(base, pop_size=128, num_elitist=16, num_results=1000)
+	schedules = genetic_algorithm(base, pop_size=128, num_elitist=16, num_results=1000, init_shuffles=256)
 	
 	# try and write to database
 	try:
