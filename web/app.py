@@ -1,5 +1,5 @@
 from flask import Flask, render_template
-from database.utils import get_num_schedules, get_schedules
+from database.utils import get_num_schedules, get_schedules, get_gameslot_headers
 import argparse
 
 # argument parser for password
@@ -23,8 +23,14 @@ def home():
 	
 	# get a list of schedules
 	schedules = get_schedules(args.password, num_schedules=100)
+		
+	# get the gameslot header information
+	gameslot_headers = get_gameslot_headers()
 	
-	return render_template('home.html', num_schedules=num_schedules, schedules=schedules)
+	return render_template('home.html',
+							num_schedules=num_schedules,
+							schedules=schedules,
+							gameslot_headers=gameslot_headers)
 
 if __name__ == '__main__':
 	app.run()

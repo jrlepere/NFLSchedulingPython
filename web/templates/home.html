@@ -1,5 +1,21 @@
 <!DOCTYPE html>
 <html>
+	<style>
+		table {
+			font-family: arial, sans-serif;
+			border-collapse: collapse;
+			width: 100%;
+		}
+		td, th {
+			border: 1px solid #dddddd;
+			text-align: center;
+			padding: 8px;
+			white-space:pre;
+		}
+		tr:nth-child(even) {
+			background-color: #dddddd;
+		}
+	</style>
 	<head>
 		<title>
 		HOME PAGE
@@ -7,11 +23,23 @@
 	</head>
 	<body>
 		<h1>NFL Schedules</h1>
-		<p>Information</p>
-		<p>{{num_schedules}}</p>
-		{% for schedule in schedules%}
-			<li>{{schedule}}</li>
-		{% endfor %}
+		<p>Schedule Count: {{num_schedules}}</p>
+		<table>
+  			<tr>
+    			<th>Year</th>
+    			{% for gameslot_header in gameslot_headers %}
+    				<th>{{gameslot_header}}</th>
+    			{% endfor %}
+  			</tr>
+  			{% for schedule in schedules %}
+	  			<tr>
+	  				<td>{{schedule.year}}</td>
+	  				{% for matchup in schedule.schedule %}
+	  					<td>{{matchup[0]}}<br/>vs<br/>{{matchup[1]}}</td>
+	  				{% endfor %}
+	  			</tr>
+  			{% endfor %}
+		</table>
 	</body>
 
 </html>
