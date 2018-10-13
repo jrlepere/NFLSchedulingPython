@@ -3,6 +3,7 @@ from src.NFLSchedule import NFLSchedule
 import csv
 import pymysql
 import argparse
+from random import randint
 
 # argument parser for password
 parser = argparse.ArgumentParser(description='Supply the password.')
@@ -11,6 +12,11 @@ parser.add_argument('-p',
             required=True,
             type=str,
             help='the rds password')
+parser.add_argument('-s',
+            dest='seed',
+            required=False,
+            type=bool,
+            help='True for highest scoring seed, False for random seed')
 args = parser.parse_args()
 
 # connection information
@@ -24,6 +30,21 @@ if __name__ == '__main__':
 
 	# base schedule so only one read
 	base = NFLSchedule.init('./resources/nfl-matchups_2018.csv')
+	
+	# set the base matchups to one from the database
+	if args.seed is not None:
+		# TODO fetch highest score
+		try:
+			# connect to the database
+			conn = pymysql.connect(host, user=user, port=port, passwd=password, db=dbname)
+			with conn.cursor() as cursor:
+				# get all matchups from the database, select one at random and set to the base
+				cursor.execute('SELECT * FROM schedules')
+				all_matchups = cursor.fetchall()
+				matchup = all_matchups[randint(0,len(all_matchups)-1)][0]
+				base.set_matchups([int(i) for i in matchup.split(',')])
+		finally:
+			conn.close()
 	
 	# get schedules
 	schedules = genetic_algorithm(base, pop_size=128, num_elitist=16, num_results=1000, init_shuffles=256)
@@ -61,4 +82,4 @@ if __name__ == '__main__':
 		
 		# close the connection
 		conn.close()
-		
+	
