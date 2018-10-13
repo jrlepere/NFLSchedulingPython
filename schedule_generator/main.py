@@ -46,7 +46,7 @@ if __name__ == '__main__':
 				all_matchups = cursor.fetchall()
 				matchup = all_matchups[randint(0,len(all_matchups)-1)][0]
 				base.set_matchups([int(i) for i in matchup.split(',')])
-				init_shuffles
+				init_shuffles = 0
 		finally:
 			conn.close()
 	

@@ -115,7 +115,7 @@ def decode_schedules(schedules):
 	
 	# for each schedule, create a ductionary of
 	for schedule in schedules:
-		print(schedule[0])
+		
 		# year and score
 		year = schedule[1]
 		score = schedule[2]
