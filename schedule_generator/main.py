@@ -31,6 +31,9 @@ if __name__ == '__main__':
 	# base schedule so only one read
 	base = NFLSchedule.init('./resources/nfl-matchups_2018.csv')
 	
+	# shuffles to make for each individual in the initial population
+	init_shuffles = 256
+	
 	# set the base matchups to one from the database
 	if args.seed is not None:
 		# TODO fetch highest score
@@ -43,11 +46,12 @@ if __name__ == '__main__':
 				all_matchups = cursor.fetchall()
 				matchup = all_matchups[randint(0,len(all_matchups)-1)][0]
 				base.set_matchups([int(i) for i in matchup.split(',')])
+				init_shuffles
 		finally:
 			conn.close()
 	
 	# get schedules
-	schedules = genetic_algorithm(base, pop_size=128, num_elitist=16, num_results=1000, init_shuffles=256)
+	schedules = genetic_algorithm(base, pop_size=128, num_elitist=16, num_results=1000, init_shuffles=init_shuffles)
 	
 	# try and write to database
 	try:

@@ -335,7 +335,6 @@ class NFLSchedule:
 		Return:
 		  The number of violations of the one game per team per week constraint.
 		"""
-		
 		return np.sum(np.where(np.matmul(self.hometeam_gameslot, NFLSchedule.gameslot_week) + np.matmul(self.awayteam_gameslot, NFLSchedule.gameslot_week) != 1, 1, 0)) - self.NUM_TEAMS
 	
 	
