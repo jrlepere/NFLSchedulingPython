@@ -24,22 +24,17 @@
 	<body>
 		<h1>NFL Schedules</h1>
 		<p>Schedule Count: {{num_schedules}}</p>
-		<table>
-  			<tr>
-    			<th>Year</th>
-    			{% for gameslot_header in gameslot_headers %}
-    				<th>{{gameslot_header}}</th>
-    			{% endfor %}
-  			</tr>
-  			{% for schedule in schedules %}
-	  			<tr>
-	  				<td>{{schedule.year}}</td>
-	  				{% for matchup in schedule.schedule %}
-	  					<td>{{matchup[0]}}<br/>vs<br/>{{matchup[1]}}</td>
-	  				{% endfor %}
-	  			</tr>
-  			{% endfor %}
-		</table>
+		{% for week in schedule.schedule %}
+			<table>
+	  			<tr><th colspan=2>Week - {{week}}</th></tr>
+  				{% for matchup in schedule.schedule[week] %}
+  					<tr>
+  						<td>{{matchup[2]}}</td>
+  						<td>{{matchup[0]}} vs {{matchup[1]}}</td>
+  					</tr>
+  				{% endfor %}
+			</table>
+		{% endfor %}
 	</body>
 
 </html>

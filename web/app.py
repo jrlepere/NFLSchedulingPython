@@ -22,15 +22,12 @@ def home():
 	num_schedules = get_num_schedules(args.password)
 	
 	# get a list of schedules
-	schedules = get_schedules(args.password, num_schedules=100)
-		
-	# get the gameslot header information
-	gameslot_headers = get_gameslot_headers()
+	schedules = get_schedules(args.password, num_schedules=1)
 	
+	# render template
 	return render_template('home.html',
 							num_schedules=num_schedules,
-							schedules=schedules,
-							gameslot_headers=gameslot_headers)
+							schedule=schedules[0])
 
 if __name__ == '__main__':
 	app.run()
