@@ -5,6 +5,7 @@
 			font-family: arial, sans-serif;
 			border-collapse: collapse;
 			width: 100%;
+			border-color: #333;
 		}
 		td, th {
 			border: 1px solid #dddddd;
@@ -12,31 +13,55 @@
 			padding: 8px;
 			white-space:pre;
 		}
-		tr:nth-child(even) {
-			background-color: #dddddd;
+		 div.scrollmenu {
+			background-color: #333;
+			overflow: auto;
+			white-space: nowrap;
+		}
+		div.scrollmenu a {
+			display: inline-block;
+			color: white;
+			text-align: center;
+			padding: 14px;
+			text-decoration: none;
+		}
+		div.scrollmenu a:hover {
+			background-color: #777;
 		}
 	</style>
 	<head>
-		<title>
-		HOME PAGE
-		</title>
+		<title>NFL Scheduler</title>
 	</head>
 	<body>
 		<h1>NFL Schedules</h1>
 		<a href=/about>about</a>
 		</br>
 		<p>Schedule Count: {{num_schedules}}</p>
-		{% for week in schedule.schedule %}
-			<table>
-	  			<tr><th colspan=2>Week - {{week}}</th></tr>
-  				{% for matchup in schedule.schedule[week] %}
-  					<tr>
-  						<td>{{matchup[2]}}</td>
-  						<td>{{matchup[0]}} vs {{matchup[1]}}</td>
-  					</tr>
-  				{% endfor %}
-			</table>
-		{% endfor %}
+		<div class="scrollmenu">
+			{% for schedule in schedules %}
+				<a onclick="displaySchedule({{schedule}})">Schedule</a>
+			{% endfor %}
+		</div> 
+		<a id="schedule"></a>
 	</body>
+	<script>
+		function displaySchedule(schedule) {
+			html = "</br>";
+			html += "<table>";
+			for (week in schedule.schedule) {
+				html += "<tr><th colspan=2>Week - " + week + "</th></tr>";
+				for (matchup in schedule.schedule[week]) {
+					html += "<tr>"
+	  				html +=		"<td>" + schedule.schedule[week][matchup][2] + "</td>"
+	  				html +=		"<td>" + schedule.schedule[week][matchup][0];
+	  				html +=			" vs ";
+	  				html += 	schedule.schedule[week][matchup][1] + "</td>";
+	  				html +=	"</tr>"
+				}
+			}
+			html += "</table>";
+			document.getElementById("schedule").innerHTML = html;
+		}
+	</script>
 
 </html>

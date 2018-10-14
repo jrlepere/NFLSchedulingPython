@@ -22,12 +22,12 @@ def home():
 	num_schedules = get_num_schedules(args.password)
 	
 	# get a list of schedules
-	schedules = get_schedules(args.password, num_schedules=1)
+	schedules = get_schedules(args.password, num_schedules=100)
 	
 	# render template
 	return render_template('home.html',
 							num_schedules=num_schedules,
-							schedule=schedules[0])
+							schedules=schedules)
 
 @app.route('/about')
 def about():
