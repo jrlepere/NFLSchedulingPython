@@ -12,6 +12,11 @@ parser.add_argument('-p',
             required=True,
             type=str,
             help='the rds password')
+parser.add_argument('-n',
+            dest='num_results',
+            required=True,
+            type=int,
+            help='The number of results to get and upload to database')
 parser.add_argument('-s',
             dest='seed',
             required=False,
@@ -51,7 +56,7 @@ if __name__ == '__main__':
 			conn.close()
 	
 	# get schedules
-	schedules = genetic_algorithm(base, pop_size=128, num_elitist=16, num_results=1000, init_shuffles=init_shuffles)
+	schedules = genetic_algorithm(base, pop_size=128, num_elitist=16, num_results=args.num_results, init_shuffles=init_shuffles)
 	
 	# try and write to database
 	try:

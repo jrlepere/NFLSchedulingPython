@@ -17,6 +17,7 @@
 			background-color: #333;
 			overflow: auto;
 			white-space: nowrap;
+			width: 100%;
 		}
 		div.scrollmenu a {
 			display: inline-block;
@@ -28,6 +29,10 @@
 		div.scrollmenu a:hover {
 			background-color: #777;
 		}
+		.sticky {
+			position: fixed;
+			top: 0;
+		}
 	</style>
 	<head>
 		<title>NFL Scheduler</title>
@@ -37,11 +42,12 @@
 		<a href=/about>about</a>
 		</br>
 		<p>Schedule Count: {{num_schedules}}</p>
-		<div class="scrollmenu">
+		<a>select 'Schedule' below</a>
+		<div class="scrollmenu" id="scheduleSelector">
 			{% for schedule in schedules %}
 				<a onclick="displaySchedule({{schedule}})">Schedule</a>
 			{% endfor %}
-		</div> 
+		</div>
 		<a id="schedule"></a>
 	</body>
 	<script>
@@ -61,6 +67,18 @@
 			}
 			html += "</table>";
 			document.getElementById("schedule").innerHTML = html;
+		}
+	</script>
+	<script>
+		window.onscroll = function() {stick()};
+		var header = document.getElementById("scheduleSelector");
+		var sticky = header.offsetTop;
+		function stick() {
+			if (window.pageYOffset > sticky) {
+				header.classList.add("sticky");
+			} else {
+				header.classList.remove("sticky");
+			}
 		}
 	</script>
 
