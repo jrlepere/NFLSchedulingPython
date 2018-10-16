@@ -18,6 +18,7 @@
 			overflow: auto;
 			white-space: nowrap;
 			width: 100%;
+			height: 60px
 		}
 		div.scrollmenu a {
 			display: inline-block;
@@ -32,6 +33,9 @@
 		.sticky {
 			position: fixed;
 			top: 0;
+		}
+		.sticky + .content {
+			padding-top: 60px;
 		}
 	</style>
 	<head>
@@ -48,13 +52,14 @@
 				<a onclick="displaySchedule({{schedule}})">Schedule</a>
 			{% endfor %}
 		</div>
-		<a id="schedule"></a>
+		<div class="content" id="schedule"></div>
 	</body>
 	<script>
 		function displaySchedule(schedule) {
-			html = "</br>";
-			html += "<table>";
+			html = "";
 			for (week in schedule.schedule) {
+				html += "</br>";
+				html += "<table>";
 				html += "<tr><th colspan=2>Week - " + week + "</th></tr>";
 				for (matchup in schedule.schedule[week]) {
 					html += "<tr>"
@@ -64,8 +69,8 @@
 	  				html += 	schedule.schedule[week][matchup][1] + "</td>";
 	  				html +=	"</tr>"
 				}
+				html += "</table>";
 			}
-			html += "</table>";
 			document.getElementById("schedule").innerHTML = html;
 		}
 	</script>
