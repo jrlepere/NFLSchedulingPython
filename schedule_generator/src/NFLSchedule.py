@@ -315,6 +315,9 @@ class NFLSchedule:
 		# Cowboys thanksgiving
 		error += self._specific_home_game(team_index=self.teams['Dallas Cowboys'], gameslot=NFLSchedule.thanksgiving_gameslots[1])
 		
+		# Jets and Giants shared home field
+		error += self._home_game_same_week(self.teams['New York Giants'], self.teams['New York Jets'])
+		
 		# return constraints violated count
 		return error
 		
@@ -342,9 +345,49 @@ class NFLSchedule:
 		"""
 		Enforce that the first game of the year is at home for the Super Bowl champs.
 		
+		Args:
+		  team_index: the index of the team
+		  gameslot: the game slot
+
 		Return:
 		  1 if the super bowl champ is not starting the season at home.
 		"""
 		
 		return 1 if self.hometeam_gameslot[team_index][gameslot] != 1 else 0
+
 	
+	def _home_game_same_week(self, team_index_1, team_index_2):
+		"""
+		Constraint that two teams cannot have home games in the same week.
+
+		Args:
+		  team_index_1: the index of the first team
+		  team_index_2: the index of the second team
+
+		Return:
+		  The number of violations.
+		"""
+		hometeam_week = np.matmul(self.hometeam_gameslot, NFLSchedule.gameslot_week)
+		hometeam_week_team1 = hometeam_week[team_index_1]
+		hometeam_week_team2 = hometeam_week[team_index_2]
+		home_same_week = hometeam_week_team1 * hometeam_week_team2
+
+		# if one plays thursday night or monday night, the teams can play at home in the same week
+		gs_count = 0
+		for week_num in range(NFLSchedule.NUM_WEEKS-1): # skip week 17, as all teams play on Sunday
+			
+			# thursday check
+			if self.hometeam_gameslot[team_index_1][gs_count] or self.hometeam_gameslot[team_index_2][gs_count]:
+				home_same_week[week_num] = 0
+			
+			# increment number of games
+			gs_count += NFLSchedule.num_games_per_week[week_num]
+			
+			# monday check
+			if self.hometeam_gameslot[team_index_1][gs_count-1] or self.hometeam_gameslot[team_index_2][gs_count-1]:
+				home_same_week[week_num] = 0
+		
+		return np.sum(home_same_week)
+
+
+
