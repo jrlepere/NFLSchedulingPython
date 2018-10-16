@@ -9,6 +9,8 @@ class NFLSchedule:
 	num_games_per_week = [16, 16, 16, 15, 15, 15, 14, 14, 13, 14, 13, 15, 16, 16, 16, 16, 16]
 	thanksgiving_gameslots = [161,162,163]
 	NUM_WEEKS = len(num_games_per_week)
+	london_games = [79, 94, 108]
+	mexico_games = [160]
 
 	def __init__(self, teams, matchup_team):
 		"""
@@ -318,6 +320,12 @@ class NFLSchedule:
 		# Jets and Giants shared home field
 		error += self._home_game_same_week(self.teams['New York Giants'], self.teams['New York Jets'])
 		
+		# international games
+		error += self._specific_matchup(self.get_matchup_index("Oakland Raiders", "Seattle Seahawks"), NFLSchedule.london_games[0])
+		error += self._specific_matchup(self.get_matchup_index("Los Angeles Chargers", "Tennessee Titans"), NFLSchedule.london_games[1])
+		error += self._specific_matchup(self.get_matchup_index("Jacksonville Jaguars", "Philadelphia Eagles"), NFLSchedule.london_games[2])
+		error += self._specific_matchup(self.get_matchup_index("Los Angeles Rams", "Kansas City Chiefs"), NFLSchedule.mexico_games[0])
+		
 		# return constraints violated count
 		return error
 		
@@ -343,14 +351,14 @@ class NFLSchedule:
 	
 	def _specific_home_game(self, team_index, gameslot):
 		"""
-		Enforce that the first game of the year is at home for the Super Bowl champs.
+		Enforce that a team has a homegame at the gameslot.
 		
 		Args:
-		  team_index: the index of the team
+		  team_index: the index of the home team
 		  gameslot: the game slot
 
 		Return:
-		  1 if the super bowl champ is not starting the season at home.
+		  0 if the team has a home game at the gameslot, 1 otherwise
 		"""
 		
 		return 1 if self.hometeam_gameslot[team_index][gameslot] != 1 else 0
@@ -388,6 +396,40 @@ class NFLSchedule:
 				home_same_week[week_num] = 0
 		
 		return np.sum(home_same_week)
+		
+	
+	def _specific_matchup(self, matchup, gameslot):
+		"""
+		Enforce that a matchup be played at a gameslot.
+		
+		Args:
+		  matchup: the matchup index
+		  gameslot: the gameslot index
+		"""
+		return 0 if self.matchup_gameslot[matchup] == gameslot else 1
 
 
-
+	def get_matchup_index(self, hometeam, awayteam):
+		"""
+		Get the index of the matchup between the hometeam and awayteam
+	
+		Args:
+		  hometeam: the home team
+		  awaytaem: teh away team
+	
+		Return:
+		  The index of the matchup.
+		"""
+	
+		# get the index of the teams
+		hometeam_index = self.teams[hometeam]
+		awayteam_index = self.teams[awayteam]
+	
+		# find the matchup
+		for i in range(self.NUM_MATCHUPS):
+			if self.matchup_team[i][0] == hometeam_index and self.matchup_team[i][1] == awayteam_index:
+				return i
+	
+		# not found
+		raise Exception("matchup not found for %s, %s" % (hometeam, awayteam))
+	
