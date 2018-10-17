@@ -48,20 +48,16 @@ def get_matchup_index(hometeam, awayteam):
 	Get the index of the matchup between the hometeam and awayteam
 
 	Args:
-	  hometeam: the home team
-	  awaytaem: the away team
+	  hometeam: the index of the home team
+	  awaytaem: the index of the away team
 
 	Return:
 	  The index of the matchup.
 	"""
 
-	# get the index of the teams
-	hometeam_index = teams[hometeam]
-	awayteam_index = teams[awayteam]
-
 	# find the matchup
 	for i in range(len(matchup_team)):
-		if matchup_team[i][0] == hometeam_index and matchup_team[i][1] == awayteam_index:
+		if matchup_team[i][0] == hometeam and matchup_team[i][1] == awayteam:
 			return i
 
 	# not found
@@ -87,3 +83,24 @@ for n in num_games_per_week:
 	count += n
 	week_gameslot.append(week_games)
 gameslot_week = np.array(week_gameslot, dtype=np.uint32).T
+
+# TEAMS
+RAIDERS = teams["Oakland Raiders"]
+SEAHAWKS = teams["Seattle Seahawks"]
+CHARGERS = teams["Los Angeles Chargers"]
+TITANS = teams["Tennessee Titans"]
+JAGUARS = teams["Jacksonville Jaguars"]
+EAGLES = teams["Philadelphia Eagles"]
+RAMS = teams["Los Angeles Rams"]
+CHIEFS = teams["Kansas City Chiefs"]
+LIONS = teams["Detroit Lions"]
+COWBOYS = teams["Dallas Cowboys"]
+JETS = teams["New York Jets"]
+GIANTS = teams["New York Giants"]
+
+# MATCHUPS
+RAIDERS_SEAHAWKS = get_matchup_index(RAIDERS, SEAHAWKS)
+CHARGERS_TITANS = get_matchup_index(CHARGERS, TITANS)
+JAGUARS_EAGLES = get_matchup_index(JAGUARS, EAGLES)
+RAMS_CHIEFS = get_matchup_index(RAMS, CHIEFS)
+

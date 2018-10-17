@@ -2,7 +2,7 @@ from schedule.score.constraints.one_game_per_week import one_game_per_week
 from schedule.score.constraints.fixed_matchup import fixed_matchup
 from schedule.score.constraints.fixed_home_game import fixed_home_game
 from schedule.score.constraints.shared_stadium import shared_stadium
-from schedule.constants import get_matchup_index, london_games, mexico_games, thanksgiving_gameslots
+from schedule.constants import london_games, mexico_games, thanksgiving_gameslots, EAGLES, LIONS, COWBOYS, JETS, GIANTS, RAIDERS_SEAHAWKS, CHARGERS_TITANS, JAGUARS_EAGLES, RAMS_CHIEFS
 
 def get_score(schedule):
 	"""
@@ -10,7 +10,6 @@ def get_score(schedule):
 	
 	Args:
 	  schedule: the schedule object
-	
 	
 	Return:
 	  The score for the schedule. If the score is negative, then the
@@ -42,22 +41,14 @@ def get_constraints(schedule):
 	"""
 	
 	constraint_violations  = one_game_per_week(schedule)
-	constraint_violations += fixed_matchup(schedule,
-								get_matchup_index("Oakland Raiders", "Seattle Seahawks"),
-								london_games[0])
-	constraint_violations += fixed_matchup(schedule,
-								get_matchup_index("Los Angeles Chargers", "Tennessee Titans"),
-								london_games[1])
-	constraint_violations += fixed_matchup(schedule,
-								get_matchup_index("Jacksonville Jaguars", "Philadelphia Eagles"),
-								london_games[2])
-	constraint_violations += fixed_matchup(schedule,
-								get_matchup_index("Los Angeles Rams", "Kansas City Chiefs"),
-								mexico_games[0])
-	constraint_violations += fixed_home_game(schedule, "Philadelphia Eagles", 0)
-	constraint_violations += fixed_home_game(schedule, "Detroit Lions", thanksgiving_gameslots[0])
-	constraint_violations += fixed_home_game(schedule, "Dallas Cowboys", thanksgiving_gameslots[1])
-	constraint_violations += shared_stadium(schedule, "New York Jets", "New York Giants")
+	constraint_violations += fixed_matchup(schedule, RAIDERS_SEAHAWKS, london_games[0])
+	constraint_violations += fixed_matchup(schedule, CHARGERS_TITANS, london_games[1])
+	constraint_violations += fixed_matchup(schedule, JAGUARS_EAGLES, london_games[2])
+	constraint_violations += fixed_matchup(schedule, RAMS_CHIEFS, mexico_games[0])
+	constraint_violations += fixed_home_game(schedule, EAGLES, 0)
+	constraint_violations += fixed_home_game(schedule, LIONS, thanksgiving_gameslots[0])
+	constraint_violations += fixed_home_game(schedule, COWBOYS, thanksgiving_gameslots[1])
+	constraint_violations += shared_stadium(schedule, JETS, GIANTS)
 	
 	return constraint_violations
 	
