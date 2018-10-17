@@ -1,5 +1,5 @@
-from src.genetic_algorithm import genetic_algorithm
-from src.NFLSchedule import NFLSchedule
+from solver.genetic_algorithm import genetic_algorithm
+from schedule.NFLSchedule import NFLSchedule
 import csv
 import pymysql
 import argparse
@@ -34,7 +34,7 @@ password=args.password
 if __name__ == '__main__':
 
 	# base schedule so only one read
-	base = NFLSchedule.init('./resources/nfl-matchups_2018.csv')
+	base = NFLSchedule()
 	
 	# shuffles to make for each individual in the initial population
 	init_shuffles = 256
@@ -79,7 +79,7 @@ if __name__ == '__main__':
 	except:
 		
 		# result filename
-		result_filename = './results/results.csv'
+		result_filename = './../results/results.csv'
 
 		# write the results
 		with open(result_filename, 'a+') as csvfile:

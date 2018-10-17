@@ -1,6 +1,6 @@
 import numpy as np
 from random import random, randint, uniform, shuffle
-from src.NFLSchedule import NFLSchedule
+from schedule.NFLSchedule import NFLSchedule
 from math import sqrt
 
 def genetic_algorithm(base, pop_size=128, num_elitist=16, num_results=1000, init_shuffles=256):
@@ -79,7 +79,7 @@ def genetic_algorithm(base, pop_size=128, num_elitist=16, num_results=1000, init
 						break
 			else:
 				break
-		#print('%3d - %3d - %3d'%(m, population[-1].get_score(), len(new_population)))
+		print('%3d - %3d - %3d'%(m, population[-1].get_score(), len(new_population)))
 		
 		# populate next generation
 		for _ in range(pop_size-len(new_population)):
