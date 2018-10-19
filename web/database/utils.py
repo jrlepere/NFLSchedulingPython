@@ -23,6 +23,7 @@ with open('./resources/nfl-matchups_2018.csv', 'r') as f:
 # header information
 num_games_per_week = [16, 16, 16, 15, 15, 15, 14, 14, 13, 14, 13, 15, 16, 16, 16, 16, 16]
 thanksgiving_gameslots = [161,162,163]
+thanksgiving_week = 11
 
 
 def get_num_schedules(password):
@@ -139,11 +140,22 @@ def decode_schedules(schedules):
 		for week_num in range(len(num_games_per_week)):
 			num_games = num_games_per_week[week_num]
 			week = schedule_gameslot_matchups[count:count+num_games]
-			week[0].append('THURSDAY NIGHT')
-			for i in range(1, len(week)-2):
-				week[i].append("SUNDAY")
-			week[-2].append('SUNDAY NIGHT')
-			week[-1].append('MONDAY NIGHT')
+			if week_num != len(num_games_per_week) - 1:
+				if week_num != thanksgiving_week:
+					s = 1
+					week[0].append('THURSDAY NIGHT')
+				else:
+					s = 3
+					week[0].append('THANKSGIVING')
+					week[1].append('THANKSGIVING')
+					week[2].append('THANKSGIVING')
+				for i in range(s, len(week)-2):
+					week[i].append("SUNDAY")
+				week[-2].append('SUNDAY NIGHT')
+				week[-1].append('MONDAY NIGHT')
+			else:
+				for i in range(len(week)):
+					week[i].append("SUNDAY")
 			week_schedule[week_num+1] = week
 			count += num_games
 		
