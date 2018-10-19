@@ -41,10 +41,10 @@ def get_constraints(schedule):
 	"""
 	
 	constraint_violations  = one_game_per_week(schedule)
-	constraint_violations += fixed_matchup(schedule, RAIDERS_SEAHAWKS, london_games[0])
-	constraint_violations += fixed_matchup(schedule, CHARGERS_TITANS, london_games[1])
-	constraint_violations += fixed_matchup(schedule, JAGUARS_EAGLES, london_games[2])
-	constraint_violations += fixed_matchup(schedule, RAMS_CHIEFS, mexico_games[0])
+	constraint_violations += 100*fixed_matchup(schedule, RAIDERS_SEAHAWKS, london_games[0])
+	constraint_violations += 100*fixed_matchup(schedule, CHARGERS_TITANS, london_games[1])
+	constraint_violations += 100*fixed_matchup(schedule, JAGUARS_EAGLES, london_games[2])
+	constraint_violations += 100*fixed_matchup(schedule, RAMS_CHIEFS, mexico_games[0])
 	constraint_violations += fixed_home_game(schedule, EAGLES, 0)
 	constraint_violations += fixed_home_game(schedule, LIONS, thanksgiving_gameslots[0])
 	constraint_violations += fixed_home_game(schedule, COWBOYS, thanksgiving_gameslots[1])

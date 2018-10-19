@@ -89,7 +89,7 @@ def genetic_algorithm(base, pop_size=128, num_elitist=16, num_results=1000, init
 			
 			# mutation
 			r = random()
-			if r < 0.9:
+			if r < 0.90:
 				child.shuffle(1)
 			elif r < 0.99:
 				child.shuffle(2)

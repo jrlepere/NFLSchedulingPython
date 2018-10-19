@@ -1,7 +1,7 @@
 import numpy as np
 from random import shuffle, randint
 from schedule.score.score_calculator import get_score
-from schedule.constants import teams, matchup_team, NUM_MATCHUPS, NUM_TEAMS, NUM_GAMESLOTS
+from schedule.constants import teams, matchup_team, NUM_MATCHUPS, NUM_TEAMS, NUM_GAMESLOTS, NUM_WEEKS, num_games_per_week, thanksgiving_gameslots
 
 class NFLSchedule:
 	"""
@@ -14,6 +14,10 @@ class NFLSchedule:
 		
 		# matchup x gameslot array
 		self.matchup_gameslot = np.arange(NUM_MATCHUPS, dtype=np.uint32)
+		
+		# gameslot to matchup
+		self.gameslot_matchup = [0 for _ in range(NUM_GAMESLOTS)]
+		self._set_gameslot_matchup()
 		
 		# score, initially set to None and only calculate when it is called for
 		#  this is because there can, most likely, be shuffling. therefore,
@@ -33,7 +37,36 @@ class NFLSchedule:
 		  True if this schedule is equal to the other schedule, false othewise.
 		"""
 		if isinstance(other, NFLSchedule):
-			return (self.matchup_gameslot == other.matchup_gameslot).all()
+			
+			# order of Sunday games does not matter
+			gs_count = 0
+			for week_num in range(NUM_WEEKS-1): # skip week 17
+				
+				# Thursday night check
+				if gs_count != thanksgiving_gameslots[0]:
+					s = gs_count+1
+					if self.gameslot_matchup[gs_count] != other.gameslot_matchup[gs_count]:
+						return False
+				else:
+					s = gs_count+3
+					if (self.gameslot_matchup[gs_count] != other.gameslot_matchup[gs_count]) or (self.gameslot_matchup[gs_count+1] != other.gameslot_matchup[gs_count+1]) or (self.gameslot_matchup[gs_count+2] != other.gameslot_matchup[gs_count+2]):
+						return False
+				# increment gameslot counter
+				gs_count += num_games_per_week[week_num]
+				
+				# Sunday day check
+				if not (sorted(self.gameslot_matchup[s:gs_count-2]) == sorted(other.gameslot_matchup[s:gs_count-2])):
+					return False
+				
+				# Sunday night check
+				if self.gameslot_matchup[gs_count-2] != other.gameslot_matchup[gs_count-2]:
+					return False
+				
+				# Monday night check
+				if self.gameslot_matchup[gs_count-1] != other.gameslot_matchup[gs_count-1]:
+					return False
+				
+			return True
 		else:
 			return False
 	
@@ -59,8 +92,19 @@ class NFLSchedule:
 		# set matchup array
 		self.matchup_gameslot = np.array(matchups, dtype=np.uint32)
 		
+		# reset gameslot to matchup
+		self._set_gameslot_matchup()
+		
 		# reset the score
 		self._score = None
+	
+	
+	def _set_gameslot_matchup(self):
+		"""
+		Sets the gameslot to matchup array for efficient equality check.
+		"""
+		for i in range(NUM_MATCHUPS):
+			self.gameslot_matchup[self.matchup_gameslot[i]] = i
 	
 	
 	@classmethod
@@ -92,6 +136,12 @@ class NFLSchedule:
 		missing_indexes = np.setdiff1d(np.arange(NUM_GAMESLOTS), unique_indexes)
 		shuffle(missing_values)
 		child.matchup_gameslot[missing_indexes] = missing_values
+		
+		# reset gameslot to matchup
+		child._set_gameslot_matchup()
+		
+		# reset the score
+		child._score = None
 		
 		# return the child
 		return child
@@ -134,24 +184,36 @@ class NFLSchedule:
 		for i in range(iterations):
 			m1 = randint(0, NUM_MATCHUPS-1)
 			m2 = randint(0, NUM_MATCHUPS-1)
+			g1 = self.matchup_gameslot[m1]
+			g2 = self.matchup_gameslot[m2]
 			self.matchup_gameslot[[m1,m2]] = self.matchup_gameslot[[m2,m1]]
+			self.gameslot_matchup[g2] = m1
+			self.gameslot_matchup[g1] = m2
 		
-		# need to recalculate score if shuffled at least once
 		if iterations > 0:
+			# reset the score
 			self._score = None
 		
 	
-	def swap(self, i, j):
+	def swap(self, m1, m2):
 		"""
 		Swap two matchups.
 		
 		Args:
-		  i: the first matchup index
-		  j: the second matchup index
+		  m1: the first matchup index
+		  m2: the second matchup index
 		"""
 		
+		# swapped gameslots
+		g1 = self.matchup_gameslot[m1]
+		g2 = self.matchup_gameslot[m2]
+		
 		# swap the matchups
-		self.matchup_gameslot[[i,j]] = self.matchup_gameslot[[j,i]]
+		self.matchup_gameslot[[m1,m2]] = self.matchup_gameslot[[m2,m1]]
+		
+		# reset gameslot to matchup
+		self.gameslot_matchup[g2] = m1
+		self.gameslot_matchup[g1] = m2
 		
 		# need to recalculate score
 		self._score = None
@@ -173,6 +235,9 @@ class NFLSchedule:
 		
 		# copy over the error, incase it was already calculated
 		copy._score = self._score
+		
+		# reset gameslot to matchup
+		copy.gameslot_matchup = self.gameslot_matchup[:]
 		
 		# return the copy
 		return copy
