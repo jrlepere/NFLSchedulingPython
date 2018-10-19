@@ -1,5 +1,6 @@
 import pymysql
 from random import shuffle, randint
+from utils.filters.opener import OpenerFilter
 
 
 # connection information
@@ -53,14 +54,15 @@ def get_num_schedules(password):
 	return schedule_count
 
 
-def get_schedules(password, num_schedules=None, order='random'):
+def get_schedules(password, num_schedules=None, order='random', opener='All'):
 	"""
 	Get the schedules from the database.
 	
 	Args:
 	  password: the database password.
 	  num_schedules: the number of schedules to return, None for all.
-	  order: 'random'
+	  order: order to return the schedules: 'random' or 'score'
+	  opener: the opponent for the Super Bowl champion home opener game
 	  
 	Return:
 	  A list of decoded schedules of the form:
@@ -70,7 +72,12 @@ def get_schedules(password, num_schedules=None, order='random'):
 	"""
 
 	# a list of schedules
-	schedules = None
+	schedules = []
+	
+	# filters
+	filters = []
+	if opener != 'All':
+		filters.append(OpenerFilter(opener))
 	
 	try:
 		# try and get the schedules
@@ -79,7 +86,16 @@ def get_schedules(password, num_schedules=None, order='random'):
 		
 			# fetch the schedules
 			cursor.execute('SELECT * FROM schedules') # TODO always return by score
-			schedules = list(cursor.fetchall())
+			decoded_schedules = decode_schedules(list(cursor.fetchall()))
+			
+			# validate filter acceptable
+			for schedule in decoded_schedules:
+				acceptable = True
+				for f in filters:
+					if not f.filter(schedule):
+						acceptable = False
+				if acceptable:
+					schedules.append(schedule)
 			
 			# shuffle if random
 			if order == 'random':
@@ -93,7 +109,7 @@ def get_schedules(password, num_schedules=None, order='random'):
 		conn.close()
 		
 	# return schedule count
-	return decode_schedules(schedules)
+	return schedules
 	
 
 def decode_schedules(schedules):

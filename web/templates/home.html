@@ -13,12 +13,15 @@
 			padding: 8px;
 			white-space:pre;
 		}
-		 div.scrollmenu {
+		div.content {
+			text-align: center;
+		}
+		div.scrollmenu {
 			background-color: #333;
 			overflow: auto;
 			white-space: nowrap;
 			width: 100%;
-			height: 60px
+			
 		}
 		div.scrollmenu a {
 			display: inline-block;
@@ -76,23 +79,39 @@
 	</head>
 	<body>
 		<div class="header">
-			  <a>NFL Scheduler</a>
-			  <div class="header-right">
-					<a href="/">Home</a>
-					<a href="/about">About</a>
-					<a href="/contact">Contact</a>
-					<a href=https://github.com/jrlepere/nflscheduler><i class="fab fa-github fa-lg fa-fw"></i></a>
-			  </div>
+			<a>NFL Scheduler</a>
+			<div class="header-right">
+				<a href="/">Home</a>
+				<a href="/about">About</a>
+				<a href="/contact">Contact</a>
+				<a href=https://github.com/jrlepere/nflscheduler><i class="fab fa-github fa-lg fa-fw"></i></a>
+			</div>
 		</div>
 		</br>
-		<p>Schedule Count: {{num_schedules}}</p>
-		<a>select 'Schedule' below</a>
+		<p>Total Schedule Count: {{num_schedules}}</p>
+		<form method="get">
+			Opener:
+			<select name="opener">
+				<option value="All">All</option>
+				<option value="New York Giants">Eagles vs Giants</option>
+				<option value="Carolina Panthers">Eagles vs Panthers</option>
+				<option value="Atlanta Falcons">Eagles vs Falcons</option>
+				<option value="Minnesota Vikings">Eagles vs Vikings</option>
+				<option value="Dallas Cowboys">Eagles vs Cowboys</option>
+			</select>
+			</br>
+			Order:
+			<input type="radio" name="order" value="score" checked>Score
+			<input type="radio" name="order" value="random">Random</br>
+			<input type="submit">
+		</form>
+		</br>
 		<div class="scrollmenu" id="scheduleSelector">
 			{% for schedule in schedules %}
-				<a onclick="displaySchedule({{schedule}})">Schedule</a>
+				<a onclick="displaySchedule({{schedule}})">Schedule</br>{{schedule.score}}</a>
 			{% endfor %}
 		</div>
-		<div class="content" id="schedule"></div>
+		<div class="content" id="schedule"></br>Select Schedule Above</div>
 	</body>
 	<script>
 		function displaySchedule(schedule) {
