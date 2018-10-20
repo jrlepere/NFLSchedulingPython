@@ -19,7 +19,7 @@ app = Flask(__name__)
 def home():
 	
 	# get arguments
-	order = request.args.get('order') if request.args.get('order') is not None else 'random'
+	order = request.args.get('order') if request.args.get('order') is not None else 'score'
 	opener = request.args.get('opener') if request.args.get('opener') is not None else 'All'
 	
 	# get a list of schedules

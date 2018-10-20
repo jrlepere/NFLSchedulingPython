@@ -85,7 +85,7 @@ def get_schedules(password, num_schedules=None, order='random', opener='All'):
 		with conn.cursor() as cursor:
 		
 			# fetch the schedules
-			cursor.execute('SELECT * FROM schedules') # TODO always return by score
+			cursor.execute('SELECT * FROM schedules ORDER BY score DESC')
 			decoded_schedules = decode_schedules(list(cursor.fetchall()))
 			
 			# validate filter acceptable
@@ -135,7 +135,7 @@ def decode_schedules(schedules):
 		
 		# year and score
 		year = schedule[1]
-		score = schedule[2]
+		score = "%.3f" % schedule[2]
 	
 		# mapping from gameslot to matchup
 		gameslot_matchups = dict()

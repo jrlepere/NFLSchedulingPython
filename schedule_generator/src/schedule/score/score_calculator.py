@@ -2,7 +2,8 @@ from schedule.score.constraints.one_game_per_week import one_game_per_week
 from schedule.score.constraints.fixed_matchup import fixed_matchup
 from schedule.score.constraints.fixed_home_game import fixed_home_game
 from schedule.score.constraints.shared_stadium import shared_stadium
-from schedule.constants import london_games, mexico_games, thanksgiving_gameslots, EAGLES, LIONS, COWBOYS, JETS, GIANTS, RAIDERS_SEAHAWKS, CHARGERS_TITANS, JAGUARS_EAGLES, RAMS_CHIEFS
+from schedule.score.heuristics.consecutive_games import consecutive_road_games
+from schedule.constants import london_games, mexico_games, thanksgiving_gameslots, EAGLES, LIONS, COWBOYS, JETS, GIANTS, RAIDERS_SEAHAWKS, CHARGERS_TITANS, JAGUARS_EAGLES, RAMS_CHIEFS, NUM_TEAMS
 
 def get_score(schedule):
 	"""
@@ -64,4 +65,6 @@ def get_heuristic(schedule):
 	  The heuristic calculation for the schedule.
 	"""
 	
-	return 0
+	score  = 1 - (consecutive_road_games(schedule) / (6 * NUM_TEAMS))
+	
+	return score * 100

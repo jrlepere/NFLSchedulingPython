@@ -6,6 +6,5 @@ class OpenerFilter:
 	
 		self.opener = opener
 
-	def filter(self, schedule):
-		print(schedule['schedule'][1][0][1])	
+	def filter(self, schedule):	
 		return schedule['schedule'][1][0][1] == self.opener
