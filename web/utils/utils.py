@@ -10,7 +10,7 @@ dbname='nflschedules'
 user='nflschedules'	
 
 
-# map from mathup index to home and away team
+# map from matchup index to home and away team
 matchup_team = []
 with open('./resources/nfl-matchups_2018.csv', 'r') as f:
 	next(f)
@@ -45,7 +45,8 @@ def get_num_schedules(password):
 		# try and get the number of rows in the database
 		conn = pymysql.connect(host, user=user, port=port, passwd=password, db=dbname)
 		with conn.cursor() as cursor:
-			schedule_count = cursor.execute('SELECT * FROM schedules')
+			cursor.execute('SELECT COUNT(*) FROM schedules')
+			schedule_count = cursor.fetchall()[0][0]
 		
 	finally:
 		conn.close()
@@ -77,7 +78,7 @@ def get_schedules(password, num_schedules=None, order='random', opener='All'):
 	# filters
 	filters = []
 	if opener != 'All':
-		filters.append(OpenerFilter(opener))
+		filters.append(OpenerFilter(opener, matchup_team))
 	
 	try:
 		# try and get the schedules
@@ -86,16 +87,40 @@ def get_schedules(password, num_schedules=None, order='random', opener='All'):
 		
 			# fetch the schedules
 			cursor.execute('SELECT * FROM schedules ORDER BY score DESC')
-			decoded_schedules = decode_schedules(list(cursor.fetchall()))
+			#decoded_schedules = decode_schedules(list(cursor.fetchall()))
+			all_schedules = list(cursor.fetchall())
 			
-			# validate filter acceptable
-			for schedule in decoded_schedules:
+			# for each schedule, decode and add to result if the schedule
+			#  passes all of the filters
+			for schedule in all_schedules:
+			
+				# mapping from gameslot to matchup
+				gameslot_matchups = dict()
+				
+				# strip and split the string as stored in the database
+				matchups_gameslot = schedule[0].strip().split(',')
+				
+				# update gameslot matchups for each gameslot to [home, away] team
+				for i in range(len(matchups_gameslot)):
+					#gameslot_matchups[int(matchups_gameslot[i])] = matchup_team[i][:]
+					gameslot_matchups[int(matchups_gameslot[i])] = i
+				
+				# test filters
 				acceptable = True
 				for f in filters:
-					if not f.filter(schedule):
+					if not f.filter(gameslot_matchups):
 						acceptable = False
+					if not acceptable:
+						break
+				
+				# add decoded schedule
 				if acceptable:
-					schedules.append(schedule)
+					schedules.append({
+						'schedule': decode_matchups(gameslot_matchups),
+						'year': schedule[1],
+						'score': "%.3f" % schedule[2]
+					})
+				
 			
 			# shuffle if random
 			if order == 'random':
@@ -112,78 +137,51 @@ def get_schedules(password, num_schedules=None, order='random', opener='All'):
 	return schedules
 	
 
-def decode_schedules(schedules):
+def decode_matchups(gameslot_matchups):
 	"""
-	Decode the schedules from the database.
+	Decode the gameslot matchup indexes to gameslot matchup team names and day of week
 	
 	Args:
-	  schedules: a list of schedule rows from the database, where each entry is
-	    matchup to gameslot list, year, score
+	  gameslot_matchups: a dictionary of gameslot index to matchup index.
 	
 	Return:
-	  A list of decoded schedules of the form:
-	   schedules: {week_number: [[home,away], [home,away], ...]}
-	   year: the schedule year
-	   score: the schedule score
+	  A schedule in the form: {week_number: [[home,away,day], [home,away,day], ...]}
 	"""
 	
-	# list of decoded schedules
-	decoded_schedules = []
+	# update gameslot matchups for each gameslot to [home, away] team
+	for i in range(len(gameslot_matchups)):
+		gameslot_matchups[i] = matchup_team[gameslot_matchups[i]][:]
 	
-	# for each schedule, create a ductionary of
-	for schedule in schedules:
-		
-		# year and score
-		year = schedule[1]
-		score = "%.3f" % schedule[2]
+	# order the schedules by gameslot
+	schedule_gameslot_matchups = [gameslot_matchups[i] for i in sorted(gameslot_matchups)]
 	
-		# mapping from gameslot to matchup
-		gameslot_matchups = dict()
-		
-		# strip and split the string as store in the database
-		matchups_gameslot = schedule[0].strip().split(',')
-		
-		# update gameslot matchups for each gameslot to [home, away] team
-		for i in range(len(matchups_gameslot)):
-			gameslot_matchups[int(matchups_gameslot[i])] = matchup_team[i][:]
-		
-		# order the schedules by gameslot
-		schedule_gameslot_matchups = [gameslot_matchups[i] for i in sorted(gameslot_matchups)]
-		
-		# week to schedule mapping
-		week_schedule = dict()
-		count = 0
-		for week_num in range(len(num_games_per_week)):
-			num_games = num_games_per_week[week_num]
-			week = schedule_gameslot_matchups[count:count+num_games]
-			if week_num != len(num_games_per_week) - 1:
-				if week_num != thanksgiving_week:
-					s = 1
-					week[0].append('THURSDAY NIGHT')
-				else:
-					s = 3
-					week[0].append('THANKSGIVING')
-					week[1].append('THANKSGIVING')
-					week[2].append('THANKSGIVING')
-				for i in range(s, len(week)-2):
-					week[i].append("SUNDAY")
-				week[-2].append('SUNDAY NIGHT')
-				week[-1].append('MONDAY NIGHT')
+	# week to schedule mapping
+	week_schedule = dict()
+	count = 0
+	for week_num in range(len(num_games_per_week)):
+		num_games = num_games_per_week[week_num]
+		week = schedule_gameslot_matchups[count:count+num_games]
+		if week_num != len(num_games_per_week) - 1:
+			if week_num != thanksgiving_week:
+				s = 1
+				week[0].append('THURSDAY NIGHT')
 			else:
-				for i in range(len(week)):
-					week[i].append("SUNDAY")
-			week_schedule[week_num+1] = week
-			count += num_games
-		
-		# add the decoded schedule
-		decoded_schedules.append({
-			'schedule': week_schedule,
-			'year': year,
-			'score': score
-		})
+				s = 3
+				week[0].append('THANKSGIVING')
+				week[1].append('THANKSGIVING')
+				week[2].append('THANKSGIVING')
+			for i in range(s, len(week)-2):
+				week[i].append("SUNDAY")
+			week[-2].append('SUNDAY NIGHT')
+			week[-1].append('MONDAY NIGHT')
+		else:
+			for i in range(len(week)):
+				week[i].append("SUNDAY")
+		week_schedule[week_num+1] = week
+		count += num_games
 	
 	# return the decoded schedules
-	return decoded_schedules
+	return week_schedule
 
 
 def get_gameslot_headers():

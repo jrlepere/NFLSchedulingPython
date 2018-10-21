@@ -70,7 +70,7 @@ if __name__ == '__main__':
 		# write each schedule to database
 		for schedule in schedules:
 			with conn.cursor() as cursor:
-				cursor.execute(sql, (",".join(map(str,schedule.get_matchups().tolist())), '2018', '100', '100'))
+				cursor.execute(sql, (",".join(map(str,schedule.get_matchups().tolist())), '2018', schedule.get_score(), schedule.get_score()))
 	
 		# commit
 		conn.commit()
