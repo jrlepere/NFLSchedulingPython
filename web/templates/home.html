@@ -88,21 +88,24 @@
 			</div>
 		</div>
 		</br>
-		<p>Total Schedule Count: {{num_schedules}}</p>
+		<p>Total Schedule Count: {{total_schedules}}</p>
 		<form method="get">
 			Opener:
 			<select name="opener">
-				<option value="All">All</option>
-				<option value="New York Giants">Eagles vs Giants</option>
-				<option value="Carolina Panthers">Eagles vs Panthers</option>
-				<option value="Atlanta Falcons">Eagles vs Falcons</option>
-				<option value="Minnesota Vikings">Eagles vs Vikings</option>
-				<option value="Dallas Cowboys">Eagles vs Cowboys</option>
+				{% for opener in openers %}
+					<option value="{{opener[0]}}">{{opener[1]}}</option>
+				{% endfor %}
 			</select>
+			{% for thanksgiving_matchup in thanksgiving_matchups %}
+				</br>
+				Thanksgiving Game {{thanksgiving_matchup.n}}:
+				<select name="tgm{{thanksgiving_matchup.n}}">
+					{% for matchup in thanksgiving_matchup.matchups %}
+						<option value="{{matchup[0]}}">{{matchup[1]}}</option>
+					{% endfor %}
+				</select>
+			{% endfor %}
 			</br>
-			Order:
-			<input type="radio" name="order" value="score" checked>Score
-			<input type="radio" name="order" value="random">Random</br>
 			<input type="submit">
 		</form>
 		</br>
@@ -111,7 +114,11 @@
 				<a onclick="displaySchedule({{schedule}})">Schedule</br>{{schedule.score}}</a>
 			{% endfor %}
 		</div>
-		<div class="content" id="schedule"></br>Select Schedule Above</div>
+		{% if num_schedules == 0 %}
+			<div class="content" id="schedule"></br>No Schedules Found</div>
+		{% else %}
+			<div class="content" id="schedule"></br>Select Schedule Above</div>
+		{% endif %}
 	</body>
 	<script>
 		function displaySchedule(schedule) {
@@ -145,5 +152,4 @@
 			}
 		}
 	</script>
-
 </html>
