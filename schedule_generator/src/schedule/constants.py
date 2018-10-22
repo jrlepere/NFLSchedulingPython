@@ -68,6 +68,9 @@ thanksgiving_gameslots = [161,162,163]
 NUM_WEEKS = len(num_games_per_week)
 london_games = [79, 94, 108]
 mexico_games = [160]
+international_gameslots = []
+international_gameslots.extend(london_games)
+international_gameslots.extend(mexico_games)
 
 # number of matchups, gameslots and teams
 NUM_GAMESLOTS = len(matchup_team)
